@@ -1,0 +1,43 @@
+# Binaries for programs and plugins
+*.exe
+*.dll
+*.so
+*.dylib
+*.rpm
+*.deb
+*.apk
+*.bin
+
+# Test binaries and output
+*_test
+*.out
+
+# Compiled Go packages
+*.a
+*.o
+
+# IDEs and editors
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+.env.*
+.vault
+
+# Dependency directories
+vendor/
+
+# Log files
+*.log
+
+# vscode-go-test-tools
+go-test-*.json
+
+# build cache
+.build/
+
+# Go module cache
+.go/
