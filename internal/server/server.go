@@ -19,6 +19,10 @@ func NewServer(handler *api.Handler, port string) *http.Server {
 			handler.ShortenURL(w, r)
 			return
 		}
+		if r.URL.Path == "/" {
+			http.NotFound(w, r)
+			return
+		}
 		handler.RedirectURL(w, r)
 	}
 	mux.HandleFunc("/", router)
