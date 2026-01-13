@@ -1,7 +1,7 @@
 package storage
 
 import (
-	"os"
+	"github.com/shu-bham/go-url-shortener/internal/config"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -9,12 +9,10 @@ import (
 )
 
 func setupTestDB(t *testing.T) *MySQLStorage {
-	dsn := os.Getenv("MYSQL_DSN")
-	if dsn == "" {
-		dsn = "root:root@tcp(127.0.0.1:3306)/url_shortener_db?parseTime=true"
-	}
+	cfg, err := config.LoadConfig("dev")
+	require.NoError(t, err)
 
-	storage, err := NewMySQLStorage(dsn)
+	storage, err := NewMySQLStorage(cfg.DB.DSN)
 	require.NoError(t, err)
 
 	_, err = storage.db.Exec("TRUNCATE TABLE urls")
