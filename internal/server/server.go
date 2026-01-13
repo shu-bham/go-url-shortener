@@ -3,6 +3,7 @@ package server
 import (
 	"github.com/shu-bham/go-url-shortener/internal/config"
 	"github.com/shu-bham/go-url-shortener/internal/logger"
+	"github.com/shu-bham/go-url-shortener/internal/shortener"
 	"github.com/shu-bham/go-url-shortener/internal/storage"
 	"net/http"
 	"os"
@@ -37,7 +38,8 @@ func StartServer() {
 		log.Fatalf("Failed to create storage: %v", err)
 	}
 
-	handler := api.NewHandler(log, db)
+	shortenerSvc := shortener.NewShortener()
+	handler := api.NewHandler(log, db, shortenerSvc, cfg.Server.DomainName)
 	server := NewServer(handler, cfg.Server.Port)
 
 	log.Infof("Server is listening on %s", server.Addr)

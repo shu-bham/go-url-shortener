@@ -18,7 +18,8 @@ type Config struct {
 		Format string `yaml:"format"`
 	} `yaml:"logger"`
 	Server struct {
-		Port string `yaml:"port"`
+		Port       string `yaml:"port"`
+		DomainName string `yaml:"domain_name"`
 	} `yaml:"server"`
 }
 

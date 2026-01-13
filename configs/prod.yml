@@ -5,3 +5,4 @@ logger:
   format: "json"
 server:
   port: ":80"
+  domain_name: "http://your-domain.com"
