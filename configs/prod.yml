@@ -1,2 +1,7 @@
 db:
   dsn: "user:password@tcp(host:port)/database"
+logger:
+  level: "info"
+  format: "json"
+server:
+  port: ":80"

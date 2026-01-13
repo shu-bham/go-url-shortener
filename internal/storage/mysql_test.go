@@ -2,6 +2,7 @@ package storage
 
 import (
 	"github.com/shu-bham/go-url-shortener/internal/config"
+	"github.com/shu-bham/go-url-shortener/internal/logger"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -12,7 +13,9 @@ func setupTestDB(t *testing.T) *MySQLStorage {
 	cfg, err := config.LoadConfig("dev")
 	require.NoError(t, err)
 
-	storage, err := NewMySQLStorage(cfg.DB.DSN)
+	log := logger.NewLogger()
+
+	storage, err := NewMySQLStorage(cfg.DB.DSN, log)
 	require.NoError(t, err)
 
 	_, err = storage.db.Exec("TRUNCATE TABLE urls")

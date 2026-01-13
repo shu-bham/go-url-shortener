@@ -13,6 +13,13 @@ type Config struct {
 	DB struct {
 		DSN string `yaml:"dsn"`
 	} `yaml:"db"`
+	Logger struct {
+		Level  string `yaml:"level"`
+		Format string `yaml:"format"`
+	} `yaml:"logger"`
+	Server struct {
+		Port string `yaml:"port"`
+	} `yaml:"server"`
 }
 
 func LoadConfig(env string) (*Config, error) {

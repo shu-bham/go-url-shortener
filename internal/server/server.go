@@ -1,19 +1,22 @@
 package server
 
 import (
-	"fmt"
+	"github.com/shu-bham/go-url-shortener/internal/config"
+	"github.com/shu-bham/go-url-shortener/internal/logger"
+	"github.com/shu-bham/go-url-shortener/internal/storage"
 	"net/http"
+	"os"
 
 	"github.com/shu-bham/go-url-shortener/api"
 )
 
 // NewServer sets up and returns a new HTTP server.
-func NewServer() *http.Server {
+func NewServer(handler *api.Handler, port string) *http.Server {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/shorten", api.ShortenURL)
+	mux.HandleFunc("/shorten", handler.ShortenURL)
 
 	server := &http.Server{
-		Addr:    ":8080",
+		Addr:    port,
 		Handler: mux,
 	}
 
@@ -22,10 +25,23 @@ func NewServer() *http.Server {
 
 // StartServer starts the HTTP server.
 func StartServer() {
-	server := NewServer()
+	cfg, err := config.LoadConfig(os.Getenv("APP_ENV"))
+	if err != nil {
+		panic(err)
+	}
 
-	fmt.Printf("Server is listening on %s\n", server.Addr)
+	log := logger.NewLogger(*cfg)
+
+	db, err := storage.NewMySQLStorage(cfg.DB.DSN, log)
+	if err != nil {
+		log.Fatalf("Failed to create storage: %v", err)
+	}
+
+	handler := api.NewHandler(log, db)
+	server := NewServer(handler, cfg.Server.Port)
+
+	log.Infof("Server is listening on %s", server.Addr)
 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		fmt.Printf("Error starting server: %s\n", err)
+		log.Fatalf("Error starting server: %s", err)
 	}
 }
