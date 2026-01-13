@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-const maxRetries = 3
+const maxRetries = 10
 
 type Handler struct {
 	log        *logrus.Logger
@@ -32,6 +32,13 @@ func NewHandler(log *logrus.Logger, storage storage.Storage, shortener shortener
 	}
 }
 
+func sanitizeURL(url string) string {
+	if !strings.HasPrefix(url, "http://") && !strings.HasPrefix(url, "https://") {
+		return "http://" + url
+	}
+	return url
+}
+
 func (h *Handler) ShortenURL(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	var req ShortenRequest
@@ -46,6 +53,8 @@ func (h *Handler) ShortenURL(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "URL is required", http.StatusBadRequest)
 		return
 	}
+
+	sanitizedURL := sanitizeURL(req.URL)
 
 	var shortCode string
 	var err error
@@ -73,7 +82,7 @@ func (h *Handler) ShortenURL(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if err := h.storage.SaveURL(ctx, req.URL, shortCode); err != nil {
+	if err := h.storage.SaveURL(ctx, sanitizedURL, shortCode); err != nil {
 		h.log.WithError(err).Error("Failed to save URL")
 		http.Error(w, "Failed to save URL", http.StatusInternalServerError)
 		return
@@ -82,7 +91,7 @@ func (h *Handler) ShortenURL(w http.ResponseWriter, r *http.Request) {
 	shortURL := fmt.Sprintf("%s/%s", h.domainName, shortCode)
 
 	h.log.WithFields(logrus.Fields{
-		"long_url":  req.URL,
+		"long_url":  sanitizedURL,
 		"short_url": shortURL,
 	}).Info("Successfully shortened URL")
 
