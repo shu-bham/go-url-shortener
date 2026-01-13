@@ -1,7 +1,9 @@
 package storage
 
+import "context"
+
 type Storage interface {
-	SaveURL(longURL, shortURL string) error
-	GetURL(shortURL string) (string, error)
-	DeleteURL(shortURL string) error
+	SaveURL(ctx context.Context, longURL, shortURL string) error
+	GetURL(ctx context.Context, shortURL string) (string, error)
+	DeleteURL(ctx context.Context, shortURL string) error
 }

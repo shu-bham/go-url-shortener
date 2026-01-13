@@ -22,6 +22,7 @@ func NewHandler(log *logrus.Logger, storage storage.Storage) *Handler {
 }
 
 func (h *Handler) ShortenURL(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	var req ShortenRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		h.log.WithError(err).Error("Invalid request body")
@@ -42,7 +43,7 @@ func (h *Handler) ShortenURL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.storage.SaveURL(req.URL, shortURL); err != nil {
+	if err := h.storage.SaveURL(ctx, req.URL, shortURL); err != nil {
 		h.log.WithError(err).Error("Failed to save URL")
 		http.Error(w, "Failed to save URL", http.StatusInternalServerError)
 		return

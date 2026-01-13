@@ -1,7 +1,7 @@
 db:
   dsn: "root:root@tcp(127.0.0.1:3306)/url_shortener_db?parseTime=true"
 logger:
-  level: "debug"
+  level: "info"
   format: "text"
 server:
   port: ":8080"

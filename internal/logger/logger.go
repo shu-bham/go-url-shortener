@@ -30,6 +30,6 @@ func NewLogger(cfg config.Config) *logrus.Logger {
 		level = logrus.InfoLevel
 	}
 	log.SetLevel(level)
-	log.SetReportCaller(true)
+	log.SetReportCaller(false)
 	return log
 }

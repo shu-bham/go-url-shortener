@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"context"
 	"github.com/shu-bham/go-url-shortener/internal/config"
 	"github.com/shu-bham/go-url-shortener/internal/logger"
 	"testing"
@@ -13,7 +14,7 @@ func setupTestDB(t *testing.T) *MySQLStorage {
 	cfg, err := config.LoadConfig("dev")
 	require.NoError(t, err)
 
-	log := logger.NewLogger()
+	log := logger.NewLogger(*cfg)
 
 	storage, err := NewMySQLStorage(cfg.DB.DSN, log)
 	require.NoError(t, err)
@@ -30,7 +31,7 @@ func TestMySQLStorage_SaveURL(t *testing.T) {
 	longURL := "https://www.google.com"
 	shortURL := "google"
 
-	err := storage.SaveURL(longURL, shortURL)
+	err := storage.SaveURL(context.Background(), longURL, shortURL)
 	require.NoError(t, err)
 
 	var retrievedLongURL string
@@ -48,7 +49,7 @@ func TestMySQLStorage_GetURL(t *testing.T) {
 	_, err := storage.db.Exec("INSERT INTO urls (long_url, short_url) VALUES (?, ?)", longURL, shortURL)
 	require.NoError(t, err)
 
-	retrievedURL, err := storage.GetURL(shortURL)
+	retrievedURL, err := storage.GetURL(context.Background(), shortURL)
 	require.NoError(t, err)
 	assert.Equal(t, longURL, retrievedURL)
 }
@@ -56,7 +57,7 @@ func TestMySQLStorage_GetURL(t *testing.T) {
 func TestMySQLStorage_GetURL_NotFound(t *testing.T) {
 	storage := setupTestDB(t)
 
-	_, err := storage.GetURL("non-existent-url")
+	_, err := storage.GetURL(context.Background(), "non-existent-url")
 	assert.Error(t, err)
 }
 
@@ -69,7 +70,7 @@ func TestMySQLStorage_DeleteURL(t *testing.T) {
 	_, err := storage.db.Exec("INSERT INTO urls (long_url, short_url) VALUES (?, ?)", longURL, shortURL)
 	require.NoError(t, err)
 
-	err = storage.DeleteURL(shortURL)
+	err = storage.DeleteURL(context.Background(), shortURL)
 	require.NoError(t, err)
 
 	var count int

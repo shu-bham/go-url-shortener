@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
@@ -29,13 +30,13 @@ func NewMySQLStorage(dsn string, log *logrus.Logger) (*MySQLStorage, error) {
 	return &MySQLStorage{db: db, log: log}, nil
 }
 
-func (s *MySQLStorage) SaveURL(longURL, shortURL string) error {
+func (s *MySQLStorage) SaveURL(ctx context.Context, longURL, shortURL string) error {
 	s.log.WithFields(logrus.Fields{
 		"long_url":  longURL,
 		"short_url": shortURL,
 	}).Info("Saving URL to database")
 	query := "INSERT INTO urls (long_url, short_url) VALUES (?, ?)"
-	_, err := s.db.Exec(query, longURL, shortURL)
+	_, err := s.db.ExecContext(ctx, query, longURL, shortURL)
 	if err != nil {
 		s.log.WithError(err).Error("Failed to save URL")
 		return fmt.Errorf("failed to save URL: %w", err)
@@ -44,11 +45,11 @@ func (s *MySQLStorage) SaveURL(longURL, shortURL string) error {
 	return nil
 }
 
-func (s *MySQLStorage) GetURL(shortURL string) (string, error) {
+func (s *MySQLStorage) GetURL(ctx context.Context, shortURL string) (string, error) {
 	s.log.WithField("short_url", shortURL).Info("Getting URL from database")
 	var longURL string
 	query := "SELECT long_url FROM urls WHERE short_url = ?"
-	err := s.db.QueryRow(query, shortURL).Scan(&longURL)
+	err := s.db.QueryRowContext(ctx, query, shortURL).Scan(&longURL)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			s.log.WithField("short_url", shortURL).Warn("URL not found")
@@ -61,10 +62,10 @@ func (s *MySQLStorage) GetURL(shortURL string) (string, error) {
 	return longURL, nil
 }
 
-func (s *MySQLStorage) DeleteURL(shortURL string) error {
+func (s *MySQLStorage) DeleteURL(ctx context.Context, shortURL string) error {
 	s.log.WithField("short_url", shortURL).Info("Deleting URL from database")
 	query := "DELETE FROM urls WHERE short_url = ?"
-	_, err := s.db.Exec(query, shortURL)
+	_, err := s.db.ExecContext(ctx, query, shortURL)
 	if err != nil {
 		s.log.WithError(err).Error("Failed to delete URL")
 		return fmt.Errorf("failed to delete URL: %w", err)
