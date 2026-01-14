@@ -36,7 +36,7 @@ func NewServer(handler *api.Handler, port string) *http.Server {
 }
 
 func StartServer() {
-	cfg, err := config.LoadConfig(os.Getenv("APP_ENV"))
+	cfg, err := config.LoadConfig()
 	if err != nil {
 		panic(err)
 	}
