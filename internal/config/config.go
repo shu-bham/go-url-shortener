@@ -27,7 +27,7 @@ func LoadConfig() (*Config, error) {
 	_, b, _, _ := runtime.Caller(0)
 	basepath := filepath.Dir(b)
 
-	fileName := fmt.Sprintf("%s/../../configs/config.yml", basepath)
+	fileName := fmt.Sprintf("%s/../../config.yml", basepath)
 	file, err := os.ReadFile(fileName)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read config file: %w", err)
